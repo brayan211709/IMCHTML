@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estacionamento - ParkSystem</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ... (mesmo CSS anterior) ... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 30px;
+            font-size: 1.1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-info .preco-config {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+
+        .header-info .preco-config input {
+            width: 80px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .header-info .preco-config button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .header-info .preco-config button:hover {
+            background: #f0f2f5;
+            transform: scale(1.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.blue {
+            background: #667eea;
+        }
+
+        .stat-icon.green {
+            background: #4caf50;
+        }
+
+        .stat-icon.orange {
+            background: #ff9800;
+        }
+
+        .stat-icon.red {
+            background: #f44336;
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            background: white;
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            color: #666;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .tab-btn:hover {
+            background: #f0f2f5;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-btn i {
+            margin-right: 8px;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .vaga {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #4caf50;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .vaga.ocupada {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .vaga.preferencial {
+            border-color: #2196f3;
+            background: #e3f2fd;
+        }
+
+        .vaga.preferencial.ocupada {
+            background: #ffcdd2;
+            border-color: #f44336;
+        }
+
+        .vaga.grande {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .vaga.moto {
+            border-color: #9c27b0;
+            background: #f3e5f5;
+        }
+
+        .vaga:hover {
+            transform: scale(1.05);
+        }
+
+        .vaga .numero {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .vaga .placa {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .vaga .tipo {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .panel-header h2 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filters input,
+        .filters select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filters button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .filters button:hover {
+            background: #5a67d8;
+        }
+
+        .report-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .filter-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .report-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .report-card h4 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .report-card p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            position: relative;
+            animation: slideIn 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.ativo {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-badge.inativo {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        #infoSaida p {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        #infoSaida p:last-child {
+            border-bottom: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 9999;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s;
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .toast.info {
+            background: #2196f3;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-info {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .header-info .preco-config {
+                justify-content: center;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                text-align: center;
+            }
+
+            .modal-content {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-parking"></i>
+                <h1>ParkSystem</h1>
+            </div>
+            <div class="header-info">
+                <span id="currentTime"></span>
+                <span id="totalVagas">Vagas: 0/0</span>
+                <div class="preco-config">
+                    <i class="fas fa-dollar-sign"></i>
+                    <input type="number" id="precoHora" step="0.50" min="1" value="5.00">
+                    <span>/ hora</span>
+                    <button onclick="atualizarPreco()">
+                        <i class="fas fa-save"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-car"></i></div>
+                        <div class="stat-info">
+                            <h3>Vagas Ocupadas</h3>
+                            <p id="vagasOcupadas">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-parking"></i></div>
+                        <div class="stat-info">
+                            <h3>Vagas Livres</h3>
+                            <p id="vagasLivres">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <h3>Veículos Hoje</h3>
+                            <p id="veiculosHoje">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="stat-info">
+                            <h3>Faturamento Hoje</h3>
+                            <p id="faturamentoHoje">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="vagas">
+                    <i class="fas fa-parking"></i> Vagas
+                </button>
+                <button class="tab-btn" data-tab="clientes">
+                    <i class="fas fa-users"></i> Clientes
+                </button>
+                <button class="tab-btn" data-tab="veiculos">
+                    <i class="fas fa-car"></i> Veículos
+                </button>
+                <button class="tab-btn" data-tab="movimentacoes">
+                    <i class="fas fa-exchange-alt"></i> Movimentações
+                </button>
+                <button class="tab-btn" data-tab="relatorios">
+                    <i class="fas fa-chart-bar"></i> Relatórios
+                </button>
+            </div>
+
+            <div class="tab-content">
+                <div id="vagas" class="tab-panel active">
+                    <div class="parking-grid" id="parkingGrid"></div>
+                </div>
+
+                <div id="clientes" class="tab-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-users"></i> Cadastro de Clientes</h2>
+                        <button class="btn-primary" onclick="abrirModalCliente()">
+                            <i class="fas fa-plus"></i> Novo Cliente
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>CPF</th>
+                                    <th>Telefone</th>
+                                    <th>Email</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="veiculos" class="tab-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-car"></i> Cadastro de Veículos</h2>
+                        <button class="btn-primary" onclick="abrirModalVeiculo()">
+                            <i class="fas fa-plus"></i> Novo Veículo
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Placa</th>
+                                    <th>Modelo</th>
+                                    <th>Marca</th>
+                                    <th>Cor</th>
+                                    <th>Ano</th>
+                                    <th>Tipo</th>
+                                    <th>Cliente</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="veiculosBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="movimentacoes" class="tab-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-exchange-alt"></i> Movimentações</h2>
+                        <button class="btn-primary" onclick="abrirModalEntrada()">
+                            <i class="fas fa-sign-in-alt"></i> Registrar Entrada
+                        </button>
+                    </div>
+                    <div class="filters">
+                        <input type="text" placeholder="Buscar placa..." id="searchPlaca">
+                        <select id="filterTipoVaga">
+                            <option value="">Todos os tipos</option>
+                            <option value="normal">Normal</option>
+                            <option value="preferencial">Preferencial</option>
+                            <option value="grande">Grande</option>
+                            <option value="moto">Moto</option>
+                        </select>
+                        <select id="filterStatus">
+                            <option value="">Todos os status</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="finalizado">Finalizado</option>
+                        </select>
+                        <button onclick="filtrarMovimentacoes()"><i class="fas fa-search"></i> Filtrar</button>
+                        <button onclick="limparFiltros()" class="btn-secondary"><i class="fas fa-undo"></i>
+                            Limpar</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Placa</th>
+                                    <th>Vaga</th>
+                                    <th>Entrada</th>
+                                    <th>Saída</th>
+                                    <th>Tempo</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movimentacoesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="relatorios" class="tab-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-chart-bar"></i> Relatórios</h2>
+                        <div>
+                            <button onclick="exportarRelatorioCSV()" class="btn-success">
+                                <i class="fas fa-file-csv"></i> Exportar CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="report-filters">
+                        <div class="filter-group">
+                            <label>Período:</label>
+                            <input type="date" id="dataInicio">
+                            <input type="date" id="dataFim">
+                            <button onclick="gerarRelatorio()" class="btn-primary">
+                                <i class="fas fa-chart-bar"></i> Gerar Relatório
+                            </button>
+                            <button onclick="gerarRelatorioHoje()" class="btn-secondary">
+                                <i class="fas fa-calendar-day"></i> Hoje
+                            </button>
+                            <button onclick="gerarRelatorioMes()" class="btn-secondary">
+                                <i class="fas fa-calendar-alt"></i> Este Mês
+                            </button>
+                        </div>
+                    </div>
+                    <div class="report-stats">
+                        <div class="report-card">
+                            <h4>Total de Entradas</h4>
+                            <p id="relTotalEntradas">0</p>
+                        </div>
+                        <div class="report-card">
+                            <h4>Total de Saídas</h4>
+                            <p id="relTotalSaidas">0</p>
+                        </div>
+                        <div class="report-card">
+                            <h4>Faturamento Total</h4>
+                            <p id="relFaturamento">R$ 0,00</p>
+                        </div>
+                        <div class="report-card">
+                            <h4>Média por Veículo</h4>
+                            <p id="relMedia">R$ 0,00</p>
+                        </div>
+                        <div class="report-card">
+                            <h4>Tempo Médio</h4>
+                            <p id="relTempoMedio">0h 0min</p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Placa</th>
+                                    <th>Vaga</th>
+                                    <th>Entrada</th>
+                                    <th>Saída</th>
+                                    <th>Tempo</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="relatoriosBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <div id="modalCliente" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="fecharModal('modalCliente')">&times;</span>
+                <h2>Cadastro de Cliente</h2>
+                <form id="formCliente">
+                    <input type="hidden" id="clienteId">
+                    <div class="form-group">
+                        <label>Nome Completo *</label>
+                        <input type="text" id="cliNome" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CPF *</label>
+                        <input type="text" id="cliCpf" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <input type="text" id="cliTelefone">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="cliEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" id="cliEndereco">
+                    </div>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="modalVeiculo" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="fecharModal('modalVeiculo')">&times;</span>
+                <h2>Cadastro de Veículo</h2>
+                <form id="formVeiculo">
+                    <div class="form-group">
+                        <label>Placa *</label>
+                        <input type="text" id="veiPlaca" required placeholder="ABC-1234">
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo *</label>
+                        <input type="text" id="veiModelo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Marca *</label>
+                        <input type="text" id="veiMarca" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cor</label>
+                        <input type="text" id="veiCor">
+                    </div>
+                    <div class="form-group">
+                        <label>Ano</label>
+                        <input type="number" id="veiAno">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo *</label>
+                        <select id="veiTipo" required>
+                            <option value="">Selecione</option>
+                            <option value="carro">Carro</option>
+                            <option value="moto">Moto</option>
+                            <option value="caminhao">Caminhão</option>
+                            <option value="van">Van</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tamanho</label>
+                        <select id="veiTamanho">
+                            <option value="pequeno">Pequeno</option>
+                            <option value="medio" selected>Médio</option>
+                            <option value="grande">Grande</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <select id="veiCliente">
+                            <option value="">Selecione um cliente</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="modalEntrada" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="fecharModal('modalEntrada')">&times;</span>
+                <h2>Registrar Entrada</h2>
+                <form id="formEntrada">
+                    <div class="form-group">
+                        <label>Placa *</label>
+                        <input type="text" id="entPlaca" required placeholder="ABC-1234">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Vaga *</label>
+                        <select id="entTipoVaga" required>
+                            <option value="normal">Normal</option>
+                            <option value="preferencial">Preferencial</option>
+                            <option value="grande">Grande</option>
+                            <option value="moto">Moto</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Registrar Entrada</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="modalSaida" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="fecharModal('modalSaida')">&times;</span>
+                <h2>Registrar Saída</h2>
+                <div id="infoSaida">
+                    <p><strong>Placa:</strong> <span id="saidaPlaca"></span></p>
+                    <p><strong>Entrada:</strong> <span id="saidaEntrada"></span></p>
+                    <p><strong>Tempo:</strong> <span id="saidaTempo"></span></p>
+                    <p><strong>Valor:</strong> <span id="saidaValor"></span></p>
+                </div>
+                <button onclick="confirmarSaida()" class="btn-primary">Confirmar Saída</button>
+                <button onclick="fecharModal('modalSaida')" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATABASE
+        // ============================================
+        class Database {
+            constructor() {
+                this.tables = {
+                    clientes: [],
+                    veiculos: [],
+                    movimentacoes: [],
+                    vagas: [],
+                    config: { precoHora: 5.00 }
+                };
+                this.loadData();
+                this.initializeVagas();
+            }
+
+            loadData() {
+                try {
+                    const data = localStorage.getItem('parkingDB');
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        this.tables = { ...this.tables, ...parsed };
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar dados:', error);
+                }
+            }
+
+            saveData() {
+                try {
+                    localStorage.setItem('parkingDB', JSON.stringify(this.tables));
+                } catch (error) {
+                    console.error('Erro ao salvar dados:', error);
+                }
+            }
+
+            getConfig() {
+                return this.tables.config || { precoHora: 5.00 };
+            }
+
+            setConfig(config) {
+                this.tables.config = { ...this.tables.config, ...config };
+                this.saveData();
+            }
+
+            initializeVagas() {
+                if (this.tables.vagas.length === 0) {
+                    const tipos = ['normal', 'normal', 'normal', 'normal', 'normal',
+                        'preferencial', 'preferencial', 'grande', 'moto', 'moto',
+                        'normal', 'normal', 'normal', 'normal', 'normal',
+                        'preferencial', 'normal', 'grande', 'moto', 'normal'];
+
+                    for (let i = 1; i <= 20; i++) {
+                        const tipo = tipos[i - 1] || 'normal';
+                        this.tables.vagas.push({
+                            id: i,
+                            numero: i,
+                            tipo: tipo,
+                            ocupada: false,
+                            placa: null,
+                            movimentacaoId: null
+                        });
+                    }
+                    this.saveData();
+                }
+            }
+
+            createCliente(cliente) {
+                cliente.id = Date.now();
+                this.tables.clientes.push(cliente);
+                this.saveData();
+                return cliente;
+            }
+
+            getClientes() {
+                return this.tables.clientes;
+            }
+
+            getCliente(id) {
+                return this.tables.clientes.find(c => c.id === id);
+            }
+
+            updateCliente(id, data) {
+                const index = this.tables.clientes.findIndex(c => c.id === id);
+                if (index !== -1) {
+                    this.tables.clientes[index] = { ...this.tables.clientes[index], ...data };
+                    this.saveData();
+                    return this.tables.clientes[index];
+                }
+                return null;
+            }
+
+            deleteCliente(id) {
+                this.tables.clientes = this.tables.clientes.filter(c => c.id !== id);
+                this.saveData();
+            }
+
+            createVeiculo(veiculo) {
+                if (this.tables.veiculos.some(v => v.placa === veiculo.placa)) {
+                    throw new Error('Placa já cadastrada!');
+                }
+                this.tables.veiculos.push(veiculo);
+                this.saveData();
+                return veiculo;
+            }
+
+            getVeiculos() {
+                return this.tables.veiculos;
+            }
+
+            getVeiculo(placa) {
+                return this.tables.veiculos.find(v => v.placa === placa);
+            }
+
+            updateVeiculo(placa, data) {
+                const index = this.tables.veiculos.findIndex(v => v.placa === placa);
+                if (index !== -1) {
+                    this.tables.veiculos[index] = { ...this.tables.veiculos[index], ...data };
+                    this.saveData();
+                    return this.tables.veiculos[index];
+                }
+                return null;
+            }
+
+            deleteVeiculo(placa) {
+                this.tables.veiculos = this.tables.veiculos.filter(v => v.placa !== placa);
+                this.saveData();
+            }
+
+            createMovimentacao(movimentacao) {
+                movimentacao.id = Date.now();
+                movimentacao.entrada = new Date().toISOString();
+                movimentacao.status = 'ativo';
+
+                const vaga = this.tables.vagas.find(v =>
+                    !v.ocupada && v.tipo === movimentacao.tipoVaga
+                );
+
+                if (!vaga) {
+                    throw new Error('Não há vagas disponíveis deste tipo!');
+                }
+
+                movimentacao.vagaId = vaga.id;
+                this.tables.movimentacoes.push(movimentacao);
+
+                vaga.ocupada = true;
+                vaga.placa = movimentacao.placa;
+                vaga.movimentacaoId = movimentacao.id;
+
+                this.saveData();
+                return movimentacao;
+            }
+
+            registrarSaida(movimentacaoId) {
+                const mov = this.tables.movimentacoes.find(m => m.id === movimentacaoId);
+                if (!mov) throw new Error('Movimentação não encontrada!');
+
+                mov.saida = new Date().toISOString();
+                mov.status = 'finalizado';
+
+                const entrada = new Date(mov.entrada);
+                const saida = new Date(mov.saida);
+                const diffMs = saida - entrada;
+                const horas = Math.ceil(diffMs / (1000 * 60 * 60));
+                const minutos = Math.ceil(diffMs / (1000 * 60));
+
+                const config = this.getConfig();
+                const valorPorHora = config.precoHora || 5.00;
+                mov.valor = horas * valorPorHora;
+                mov.tempoHoras = horas;
+                mov.tempoMinutos = minutos;
+
+                const vaga = this.tables.vagas.find(v => v.id === mov.vagaId);
+                if (vaga) {
+                    vaga.ocupada = false;
+                    vaga.placa = null;
+                    vaga.movimentacaoId = null;
+                }
+
+                this.saveData();
+                return mov;
+            }
+
+            getMovimentacoes() {
+                return this.tables.movimentacoes;
+            }
+
+            getMovimentacao(id) {
+                return this.tables.movimentacoes.find(m => m.id === id);
+            }
+
+            getVagas() {
+                return this.tables.vagas;
+            }
+
+            getVaga(id) {
+                return this.tables.vagas.find(v => v.id === id);
+            }
+
+            getRelatorio(dataInicio, dataFim) {
+                const inicio = new Date(dataInicio);
+                const fim = new Date(dataFim);
+                fim.setHours(23, 59, 59, 999);
+
+                const movs = this.tables.movimentacoes.filter(m => {
+                    const entrada = new Date(m.entrada);
+                    return entrada >= inicio && entrada <= fim;
+                });
+
+                const totalEntradas = movs.length;
+                const saidas = movs.filter(m => m.status === 'finalizado');
+                const totalSaidas = saidas.length;
+                const faturamento = saidas.reduce((sum, m) => sum + (m.valor || 0), 0);
+                const media = totalSaidas > 0 ? faturamento / totalSaidas : 0;
+
+                let totalTempo = 0;
+                saidas.forEach(m => {
+                    totalTempo += m.tempoMinutos || 0;
+                });
+                const tempoMedioMinutos = totalSaidas > 0 ? Math.round(totalTempo / totalSaidas) : 0;
+                const tempoMedioHoras = Math.floor(tempoMedioMinutos / 60);
+                const tempoMedioResto = tempoMedioMinutos % 60;
+
+                return {
+                    totalEntradas,
+                    totalSaidas,
+                    faturamento,
+                    media,
+                    tempoMedio: `${tempoMedioHoras}h ${tempoMedioResto}min`,
+                    movimentacoes: movs.sort((a, b) => new Date(b.entrada) - new Date(a.entrada))
+                };
+            }
+        }
+
+        // ============================================
+        // APPLICATION
+        // ============================================
+        class App {
+            constructor() {
+                this.db = new Database();
+                this.init();
+            }
+
+            init() {
+                this.carregarPreco();
+                this.updateStats();
+                this.renderVagas();
+                this.renderClientes();
+                this.renderVeiculos();
+                this.renderMovimentacoes();
+                this.updateClock();
+                this.setupEventListeners();
+
+                // Carregar relatório automaticamente se a aba estiver ativa
+                setTimeout(() => {
+                    if (document.getElementById('relatorios').classList.contains('active')) {
+                        this.gerarRelatorio();
+                    }
+                }, 100);
+
+                setInterval(() => {
+                    this.updateStats();
+                    this.renderVagas();
+                    this.renderMovimentacoes();
+                }, 30000);
+            }
+
+            carregarPreco() {
+                const config = this.db.getConfig();
+                document.getElementById('precoHora').value = config.precoHora || 5.00;
+            }
+
+            updateClock() {
+                const now = new Date();
+                document.getElementById('currentTime').textContent =
+                    now.toLocaleString('pt-BR');
+            }
+
+            updateStats() {
+                const vagas = this.db.getVagas();
+                const ocupadas = vagas.filter(v => v.ocupada).length;
+                const livres = vagas.length - ocupadas;
+
+                document.getElementById('vagasOcupadas').textContent = ocupadas;
+                document.getElementById('vagasLivres').textContent = livres;
+                document.getElementById('totalVagas').textContent =
+                    `Vagas: ${ocupadas}/${vagas.length}`;
+
+                const hoje = new Date().toDateString();
+                const movsHoje = this.db.getMovimentacoes().filter(m =>
+                    new Date(m.entrada).toDateString() === hoje
+                );
+                document.getElementById('veiculosHoje').textContent = movsHoje.length;
+
+                const faturamento = movsHoje
+                    .filter(m => m.status === 'finalizado')
+                    .reduce((sum, m) => sum + (m.valor || 0), 0);
+                document.getElementById('faturamentoHoje').textContent =
+                    `R$ ${faturamento.toFixed(2)}`;
+            }
+
+            renderVagas() {
+                const grid = document.getElementById('parkingGrid');
+                const vagas = this.db.getVagas();
+
+                grid.innerHTML = vagas.map(vaga => {
+                    const classes = ['vaga'];
+                    if (vaga.ocupada) classes.push('ocupada');
+                    if (vaga.tipo !== 'normal') classes.push(vaga.tipo);
+
+                    const tipoIcon = {
+                        'normal': 'fa-car',
+                        'preferencial': 'fa-wheelchair',
+                        'grande': 'fa-truck',
+                        'moto': 'fa-motorcycle'
+                    };
+
+                    return `
+                        <div class="${classes.join(' ')}" onclick="app.showVagaInfo(${vaga.id})">
+                            <div class="numero">${vaga.numero}</div>
+                            <i class="fas ${tipoIcon[vaga.tipo] || 'fa-car'}"></i>
+                            <div class="placa">${vaga.placa || 'Livre'}</div>
+                            <div class="tipo">${vaga.tipo}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderClientes() {
+                const tbody = document.getElementById('clientesBody');
+                const clientes = this.db.getClientes();
+
+                if (clientes.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#999;">Nenhum cliente cadastrado</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = clientes.map(cliente => `
+                    <tr>
+                        <td>${cliente.id}</td>
+                        <td>${cliente.nome}</td>
+                        <td>${cliente.cpf}</td>
+                        <td>${cliente.telefone || '-'}</td>
+                        <td>${cliente.email || '-'}</td>
+                        <td>
+                            <button class="btn-primary btn-sm" onclick="app.editarCliente(${cliente.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-danger btn-sm" onclick="app.excluirCliente(${cliente.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            renderVeiculos() {
+                const tbody = document.getElementById('veiculosBody');
+                const veiculos = this.db.getVeiculos();
+                const clientes = this.db.getClientes();
+
+                if (veiculos.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#999;">Nenhum veículo cadastrado</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = veiculos.map(veiculo => {
+                    const cliente = clientes.find(c => c.id === veiculo.clienteId);
+                    return `
+                        <tr>
+                            <td><strong>${veiculo.placa}</strong></td>
+                            <td>${veiculo.modelo}</td>
+                            <td>${veiculo.marca}</td>
+                            <td>${veiculo.cor || '-'}</td>
+                            <td>${veiculo.ano || '-'}</td>
+                            <td>${veiculo.tipo}</td>
+                            <td>${cliente ? cliente.nome : '-'}</td>
+                            <td>
+                                <button class="btn-primary btn-sm" onclick="app.editarVeiculo('${veiculo.placa}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-danger btn-sm" onclick="app.excluirVeiculo('${veiculo.placa}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            renderMovimentacoes() {
+                const tbody = document.getElementById('movimentacoesBody');
+                const movs = this.db.getMovimentacoes();
+                const vagas = this.db.getVagas();
+
+                if (movs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:20px;color:#999;">Nenhuma movimentação registrada</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = movs.sort((a, b) => b.id - a.id).map(mov => {
+                    const vaga = vagas.find(v => v.id === mov.vagaId);
+                    const statusClass = mov.status === 'ativo' ? 'ativo' : 'inativo';
+                    const statusText = mov.status === 'ativo' ? 'Estacionado' : 'Finalizado';
+
+                    let tempo = '-';
+                    if (mov.status === 'finalizado' && mov.tempoHoras !== undefined) {
+                        tempo = `${mov.tempoHoras}h ${(mov.tempoMinutos % 60)}min`;
+                    } else if (mov.status === 'ativo') {
+                        const entrada = new Date(mov.entrada);
+                        const agora = new Date();
+                        const diff = Math.floor((agora - entrada) / (1000 * 60));
+                        const h = Math.floor(diff / 60);
+                        const m = diff % 60;
+                        tempo = `${h}h ${m}min`;
+                    }
+
+                    return `
+                        <tr>
+                            <td>${mov.id}</td>
+                            <td><strong>${mov.placa}</strong></td>
+                            <td>${vaga ? `Vaga ${vaga.numero} (${vaga.tipo})` : '-'}</td>
+                            <td>${new Date(mov.entrada).toLocaleString('pt-BR')}</td>
+                            <td>${mov.saida ? new Date(mov.saida).toLocaleString('pt-BR') : '-'}</td>
+                            <td>${tempo}</td>
+                            <td>${mov.valor ? `R$ ${mov.valor.toFixed(2)}` : '-'}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>
+                                ${mov.status === 'ativo' ?
+                            `<button class="btn-success btn-sm" onclick="app.registrarSaida(${mov.id})">
+                                        <i class="fas fa-sign-out-alt"></i> Saída
+                                    </button>` :
+                            '-'
+                        }
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            abrirModalCliente(cliente = null) {
+                const modal = document.getElementById('modalCliente');
+                const form = document.getElementById('formCliente');
+
+                if (cliente) {
+                    document.getElementById('clienteId').value = cliente.id;
+                    document.getElementById('cliNome').value = cliente.nome;
+                    document.getElementById('cliCpf').value = cliente.cpf;
+                    document.getElementById('cliTelefone').value = cliente.telefone || '';
+                    document.getElementById('cliEmail').value = cliente.email || '';
+                    document.getElementById('cliEndereco').value = cliente.endereco || '';
+                } else {
+                    form.reset();
+                    document.getElementById('clienteId').value = '';
+                }
+
+                modal.style.display = 'block';
+            }
+
+            salvarCliente(e) {
+                e.preventDefault();
+
+                const id = document.getElementById('clienteId').value;
+                const data = {
+                    nome: document.getElementById('cliNome').value,
+                    cpf: document.getElementById('cliCpf').value,
+                    telefone: document.getElementById('cliTelefone').value,
+                    email: document.getElementById('cliEmail').value,
+                    endereco: document.getElementById('cliEndereco').value
+                };
+
+                if (id) {
+                    this.db.updateCliente(parseInt(id), data);
+                } else {
+                    this.db.createCliente(data);
+                }
+
+                this.fecharModal('modalCliente');
+                this.renderClientes();
+                this.updateStats();
+            }
+
+            editarCliente(id) {
+                const cliente = this.db.getCliente(id);
+                if (cliente) {
+                    this.abrirModalCliente(cliente);
+                }
+            }
+
+            excluirCliente(id) {
+                if (confirm('Tem certeza que deseja excluir este cliente?')) {
+                    this.db.deleteCliente(id);
+                    this.renderClientes();
+                }
+            }
+
+            abrirModalVeiculo(veiculo = null) {
+                const modal = document.getElementById('modalVeiculo');
+                const form = document.getElementById('formVeiculo');
+                const selectCliente = document.getElementById('veiCliente');
+
+                const clientes = this.db.getClientes();
+                selectCliente.innerHTML = `
+                    <option value="">Selecione um cliente</option>
+                    ${clientes.map(c => `
+                        <option value="${c.id}">${c.nome} (${c.cpf})</option>
+                    `).join('')}
+                `;
+
+                if (veiculo) {
+                    document.getElementById('veiPlaca').value = veiculo.placa;
+                    document.getElementById('veiPlaca').readOnly = true;
+                    document.getElementById('veiModelo').value = veiculo.modelo;
+                    document.getElementById('veiMarca').value = veiculo.marca;
+                    document.getElementById('veiCor').value = veiculo.cor || '';
+                    document.getElementById('veiAno').value = veiculo.ano || '';
+                    document.getElementById('veiTipo').value = veiculo.tipo;
+                    document.getElementById('veiTamanho').value = veiculo.tamanho || 'medio';
+                    document.getElementById('veiCliente').value = veiculo.clienteId || '';
+                } else {
+                    form.reset();
+                    document.getElementById('veiPlaca').readOnly = false;
+                }
+
+                modal.style.display = 'block';
+            }
+
+            salvarVeiculo(e) {
+                e.preventDefault();
+
+                const data = {
+                    placa: document.getElementById('veiPlaca').value.toUpperCase(),
+                    modelo: document.getElementById('veiModelo').value,
+                    marca: document.getElementById('veiMarca').value,
+                    cor: document.getElementById('veiCor').value,
+                    ano: parseInt(document.getElementById('veiAno').value) || null,
+                    tipo: document.getElementById('veiTipo').value,
+                    tamanho: document.getElementById('veiTamanho').value,
+                    clienteId: parseInt(document.getElementById('veiCliente').value) || null
+                };
+
+                try {
+                    const existente = this.db.getVeiculo(data.placa);
+                    if (existente) {
+                        this.db.updateVeiculo(data.placa, data);
+                    } else {
+                        this.db.createVeiculo(data);
+                    }
+
+                    this.fecharModal('modalVeiculo');
+                    this.renderVeiculos();
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+
+            editarVeiculo(placa) {
+                const veiculo = this.db.getVeiculo(placa);
+                if (veiculo) {
+                    this.abrirModalVeiculo(veiculo);
+                }
+            }
+
+            excluirVeiculo(placa) {
+                if (confirm('Tem certeza que deseja excluir este veículo?')) {
+                    this.db.deleteVeiculo(placa);
+                    this.renderVeiculos();
+                }
+            }
+
+            abrirModalEntrada() {
+                document.getElementById('modalEntrada').style.display = 'block';
+                document.getElementById('entPlaca').focus();
+            }
+
+            registrarEntrada(e) {
+                e.preventDefault();
+
+                const placa = document.getElementById('entPlaca').value.toUpperCase();
+                const tipoVaga = document.getElementById('entTipoVaga').value;
+
+                if (!placa || !tipoVaga) {
+                    alert('Preencha todos os campos!');
+                    return;
+                }
+
+                const veiculo = this.db.getVeiculo(placa);
+                if (!veiculo) {
+                    if (!confirm('Veículo não cadastrado. Deseja cadastrar agora?')) {
+                        return;
+                    }
+                    this.fecharModal('modalEntrada');
+                    this.abrirModalVeiculo({ placa });
+                    return;
+                }
+
+                try {
+                    const mov = {
+                        placa: placa,
+                        tipoVaga: tipoVaga,
+                        veiculoId: veiculo.placa
+                    };
+
+                    this.db.createMovimentacao(mov);
+                    this.fecharModal('modalEntrada');
+                    this.updateStats();
+                    this.renderVagas();
+                    this.renderMovimentacoes();
+
+                    document.getElementById('entPlaca').value = '';
+                    document.getElementById('entTipoVaga').value = 'normal';
+
+                    this.showToast('Entrada registrada com sucesso!', 'success');
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+
+            registrarSaida(movimentacaoId) {
+                const mov = this.db.getMovimentacao(movimentacaoId);
+                if (!mov) return;
+
+                const entrada = new Date(mov.entrada);
+                const agora = new Date();
+                const diffMs = agora - entrada;
+                const horas = Math.ceil(diffMs / (1000 * 60 * 60));
+                const minutos = Math.ceil(diffMs / (1000 * 60));
+                const config = this.db.getConfig();
+                const valor = horas * (config.precoHora || 5.00);
+
+                document.getElementById('saidaPlaca').textContent = mov.placa;
+                document.getElementById('saidaEntrada').textContent =
+                    entrada.toLocaleString('pt-BR');
+                document.getElementById('saidaTempo').textContent =
+                    `${horas}h ${minutos % 60}min`;
+                document.getElementById('saidaValor').textContent =
+                    `R$ ${valor.toFixed(2)}`;
+
+                document.getElementById('modalSaida').style.display = 'block';
+                document.getElementById('modalSaida').dataset.movId = mov.id;
+            }
+
+            confirmarSaida() {
+                const movId = parseInt(document.getElementById('modalSaida').dataset.movId);
+                this.db.registrarSaida(movId);
+                this.fecharModal('modalSaida');
+                this.updateStats();
+                this.renderVagas();
+                this.renderMovimentacoes();
+
+                this.showToast('Saída registrada com sucesso!', 'success');
+
+                if (document.getElementById('relatorios').classList.contains('active')) {
+                    this.gerarRelatorio();
+                }
+            }
+
+            gerarRelatorio() {
+                const dataInicio = document.getElementById('dataInicio').value;
+                const dataFim = document.getElementById('dataFim').value;
+
+                if (!dataInicio || !dataFim) {
+                    this.showToast('Selecione o período para gerar o relatório!', 'error');
+                    return;
+                }
+
+                try {
+                    const relatorio = this.db.getRelatorio(dataInicio, dataFim);
+
+                    document.getElementById('relTotalEntradas').textContent = relatorio.totalEntradas;
+                    document.getElementById('relTotalSaidas').textContent = relatorio.totalSaidas;
+                    document.getElementById('relFaturamento').textContent =
+                        `R$ ${relatorio.faturamento.toFixed(2)}`;
+                    document.getElementById('relMedia').textContent =
+                        `R$ ${relatorio.media.toFixed(2)}`;
+                    document.getElementById('relTempoMedio').textContent = relatorio.tempoMedio;
+
+                    const tbody = document.getElementById('relatoriosBody');
+                    if (relatorio.movimentacoes.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#999;">Nenhuma movimentação no período</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = relatorio.movimentacoes.map(mov => {
+                        const vaga = this.db.getVaga(mov.vagaId);
+                        let tempo = '-';
+                        let valor = '-';
+
+                        if (mov.status === 'finalizado') {
+                            tempo = `${mov.tempoHoras}h ${(mov.tempoMinutos % 60)}min`;
+                            valor = `R$ ${mov.valor.toFixed(2)}`;
+                        } else {
+                            const entrada = new Date(mov.entrada);
+                            const agora = new Date();
+                            const diff = Math.floor((agora - entrada) / (1000 * 60));
+                            const h = Math.floor(diff / 60);
+                            const m = diff % 60;
+                            tempo = `${h}h ${m}min (ativo)`;
+                        }
+
+                        return `
+                            <tr>
+                                <td>${new Date(mov.entrada).toLocaleDateString('pt-BR')}</td>
+                                <td><strong>${mov.placa}</strong></td>
+                                <td>${vaga ? `Vaga ${vaga.numero}` : '-'}</td>
+                                <td>${new Date(mov.entrada).toLocaleString('pt-BR')}</td>
+                                <td>${mov.saida ? new Date(mov.saida).toLocaleString('pt-BR') : '-'}</td>
+                                <td>${tempo}</td>
+                                <td>${valor}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    this.showToast('Relatório gerado com sucesso!', 'success');
+                } catch (error) {
+                    this.showToast('Erro ao gerar relatório: ' + error.message, 'error');
+                }
+            }
+
+            gerarRelatorioHoje() {
+                const hoje = new Date();
+                document.getElementById('dataInicio').value = hoje.toISOString().split('T')[0];
+                document.getElementById('dataFim').value = hoje.toISOString().split('T')[0];
+                this.gerarRelatorio();
+            }
+
+            gerarRelatorioMes() {
+                const hoje = new Date();
+                const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+                document.getElementById('dataInicio').value = primeiroDia.toISOString().split('T')[0];
+                document.getElementById('dataFim').value = hoje.toISOString().split('T')[0];
+                this.gerarRelatorio();
+            }
+
+            exportarRelatorioCSV() {
+                const dataInicio = document.getElementById('dataInicio').value;
+                const dataFim = document.getElementById('dataFim').value;
+
+                if (!dataInicio || !dataFim) {
+                    this.showToast('Selecione o período para exportar!', 'error');
+                    return;
+                }
+
+                const relatorio = this.db.getRelatorio(dataInicio, dataFim);
+
+                if (relatorio.movimentacoes.length === 0) {
+                    this.showToast('Não há dados para exportar no período selecionado!', 'error');
+                    return;
+                }
+
+                let csv = 'Data,Placa,Vaga,Entrada,Saída,Tempo,Valor\n';
+
+                relatorio.movimentacoes.forEach(mov => {
+                    const vaga = this.db.getVaga(mov.vagaId);
+                    let tempo = '';
+                    let valor = '';
+
+                    if (mov.status === 'finalizado') {
+                        tempo = `${mov.tempoHoras}h ${(mov.tempoMinutos % 60)}min`;
+                        valor = mov.valor.toFixed(2);
+                    } else {
+                        tempo = 'Em andamento';
+                        valor = '0.00';
+                    }
+
+                    csv += `${new Date(mov.entrada).toLocaleDateString('pt-BR')},`;
+                    csv += `${mov.placa},`;
+                    csv += `${vaga ? `Vaga ${vaga.numero}` : '-'},`;
+                    csv += `${new Date(mov.entrada).toLocaleString('pt-BR')},`;
+                    csv += `${mov.saida ? new Date(mov.saida).toLocaleString('pt-BR') : '-'},`;
+                    csv += `${tempo},`;
+                    csv += `${valor}\n`;
+                });
+
+                csv += '\n\nRESUMO\n';
+                csv += `Total de Entradas,${relatorio.totalEntradas}\n`;
+                csv += `Total de Saídas,${relatorio.totalSaidas}\n`;
+                csv += `Faturamento Total,${relatorio.faturamento.toFixed(2)}\n`;
+                csv += `Média por Veículo,${relatorio.media.toFixed(2)}\n`;
+                csv += `Tempo Médio,${relatorio.tempoMedio}\n`;
+
+                const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `relatorio_${dataInicio}_a_${dataFim}.csv`;
+                link.click();
+
+                this.showToast('Relatório exportado com sucesso!', 'success');
+            }
+
+            showVagaInfo(vagaId) {
+                const vaga = this.db.getVaga(vagaId);
+                if (!vaga) return;
+
+                if (vaga.ocupada) {
+                    const mov = this.db.getMovimentacao(vaga.movimentacaoId);
+                    if (mov) {
+                        const entrada = new Date(mov.entrada);
+                        const agora = new Date();
+                        const diff = Math.floor((agora - entrada) / (1000 * 60));
+                        const h = Math.floor(diff / 60);
+                        const m = diff % 60;
+
+                        alert(
+                            `🚗 Vaga ${vaga.numero}\n` +
+                            `📋 Placa: ${vaga.placa}\n` +
+                            `⏰ Entrada: ${entrada.toLocaleString('pt-BR')}\n` +
+                            `⏱️ Tempo estacionado: ${h}h ${m}min\n` +
+                            `📌 Tipo: ${vaga.tipo}`
+                        );
+                    }
+                } else {
+                    alert(
+                        `✅ Vaga ${vaga.numero} - Disponível\n` +
+                        `📌 Tipo: ${vaga.tipo}\n` +
+                        `🟢 Status: Livre`
+                    );
+                }
+            }
+
+            fecharModal(modalId) {
+                document.getElementById(modalId).style.display = 'none';
+            }
+
+            showToast(mensagem, tipo = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${tipo}`;
+                toast.textContent = mensagem;
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            setupEventListeners() {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+
+                        const tabId = btn.dataset.tab;
+                        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                        document.getElementById(tabId).classList.add('active');
+
+                        // Quando a aba de relatórios for aberta, gerar automaticamente
+                        if (tabId === 'relatorios') {
+                            const hoje = new Date();
+                            const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+                            // Só define as datas se estiverem vazias
+                            if (!document.getElementById('dataInicio').value) {
+                                document.getElementById('dataInicio').value =
+                                    primeiroDia.toISOString().split('T')[0];
+                            }
+                            if (!document.getElementById('dataFim').value) {
+                                document.getElementById('dataFim').value =
+                                    hoje.toISOString().split('T')[0];
+                            }
+
+                            // Gera o relatório automaticamente
+                            this.gerarRelatorio();
+                        }
+                    });
+                });
+
+                document.getElementById('formCliente').addEventListener('submit', (e) => this.salvarCliente(e));
+                document.getElementById('formVeiculo').addEventListener('submit', (e) => this.salvarVeiculo(e));
+                document.getElementById('formEntrada').addEventListener('submit', (e) => this.registrarEntrada(e));
+
+                window.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal')) {
+                        e.target.style.display = 'none';
+                    }
+                });
+
+                document.getElementById('searchPlaca')?.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        this.filtrarMovimentacoes();
+                    }
+                });
+            }
+
+            filtrarMovimentacoes() {
+                const search = document.getElementById('searchPlaca').value.toUpperCase();
+                const tipo = document.getElementById('filterTipoVaga').value;
+                const status = document.getElementById('filterStatus').value;
+
+                const rows = document.querySelectorAll('#movimentacoesBody tr');
+                let visiveis = 0;
+
+                rows.forEach(row => {
+                    if (!row.querySelector('td')) return;
+
+                    const placa = row.querySelector('td:nth-child(2)')?.textContent || '';
+                    const vaga = row.querySelector('td:nth-child(3)')?.textContent || '';
+                    const statusCell = row.querySelector('td:nth-child(8)')?.textContent || '';
+
+                    const matchPlaca = placa.includes(search);
+                    const matchTipo = !tipo || vaga.includes(tipo);
+                    const matchStatus = !status || statusCell.includes(status === 'ativo' ? 'Estacionado' : 'Finalizado');
+
+                    const show = matchPlaca && matchTipo && matchStatus;
+                    row.style.display = show ? '' : 'none';
+                    if (show) visiveis++;
+                });
+
+                if (visiveis === 0 && (search || tipo || status)) {
+                    this.showToast('Nenhum resultado encontrado', 'info');
+                }
+            }
+
+            limparFiltros() {
+                document.getElementById('searchPlaca').value = '';
+                document.getElementById('filterTipoVaga').value = '';
+                document.getElementById('filterStatus').value = '';
+                document.querySelectorAll('#movimentacoesBody tr').forEach(row => {
+                    row.style.display = '';
+                });
+                this.showToast('Filtros limpos', 'info');
+            }
+        }
+
+        // ============================================
+        // FUNÇÕES GLOBAIS
+        // ============================================
+        let app;
+
+        function abrirModalCliente(cliente = null) {
+            app.abrirModalCliente(cliente);
+        }
+
+        function abrirModalVeiculo(veiculo = null) {
+            app.abrirModalVeiculo(veiculo);
+        }
+
+        function abrirModalEntrada() {
+            app.abrirModalEntrada();
+        }
+
+        function fecharModal(modalId) {
+            app.fecharModal(modalId);
+        }
+
+        function gerarRelatorio() {
+            app.gerarRelatorio();
+        }
+
+        function gerarRelatorioHoje() {
+            app.gerarRelatorioHoje();
+        }
+
+        function gerarRelatorioMes() {
+            app.gerarRelatorioMes();
+        }
+
+        function confirmarSaida() {
+            app.confirmarSaida();
+        }
+
+        function filtrarMovimentacoes() {
+            app.filtrarMovimentacoes();
+        }
+
+        function limparFiltros() {
+            app.limparFiltros();
+        }
+
+        function exportarRelatorioCSV() {
+            app.exportarRelatorioCSV();
+        }
+
+        function atualizarPreco() {
+            const preco = parseFloat(document.getElementById('precoHora').value);
+            if (isNaN(preco) || preco <= 0) {
+                alert('Digite um valor válido para o preço por hora!');
+                return;
+            }
+
+            app.db.setConfig({ precoHora: preco });
+            app.showToast(`Preço por hora atualizado para R$ ${preco.toFixed(2)}`, 'success');
+        }
+
+        // ============================================
+        // INICIALIZAÇÃO
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new App();
+            window.app = app;
+
+            setInterval(() => {
+                app.updateClock();
+            }, 60000);
+        });
+    </script>
+</body>
+
+</html>
